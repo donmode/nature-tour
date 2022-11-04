@@ -27,14 +27,14 @@ dbConnected.on('error', console.error.bind(console, 'connection error: '));
 const tourSchema = new mongoose.Schema(
   {
     name: {
-      type: 'string',
+      type: String,
       trim: true,
       required: [true, 'A tour must have a name'],
       unique: [true],
       maxlength: [50, 'A tour name must be at most 50 characters'],
       minlength: [5, 'A tour name must be at least 5 characters'],
       validate: {
-        validator: validator.isAlpha,
+        validator: (val) => validator.isAlpha(val, ['en-US'], { ignore: ' ' }),
         message: 'A tour name must be alphabetic',
       },
     },
@@ -57,8 +57,8 @@ const tourSchema = new mongoose.Schema(
     ratingsAverage: {
       type: Number,
       default: 4.5,
-      min: [1, 'The ratings must be at least 1'],
-      max: [5, 'The ratings must be at most 5'],
+      min: [1, 'The ratings Average must be at least 1'],
+      max: [5, 'The ratings Average must be at most 5'],
     },
     ratingsQuantity: {
       type: Number,
@@ -132,21 +132,22 @@ tourSchema.pre('save', function (next) {
 //   next();
 // });
 
-// // QUERY MIDDLEWARE
-// //
-// // before query
-// tourSchema.pre(/^find/, function (next) {
-//   this.find({ secretTour: { $ne: true } });
-//   this.start = Date.now();
-//   next();
-// });
-
-// after query
-tourSchema.post(/^find/, function (doc, next) {
-  //   console.log(doc);
-  console.log(`Query took: ${Date.now() - this.start}`);
+// QUERY MIDDLEWARE
+//
+// before query
+tourSchema.pre(/^find/, function (next) {
+  this.find({ secretTour: { $ne: true } });
+  this.start = Date.now();
   next();
 });
+
+// after query
+// tourSchema.post(/^find/, function (doc, next) {
+//   console.log(this.start);
+//   console.log(Date.now());
+//   console.log(`Query took: ${Date.now() - this.start}`);
+//   next();
+// });
 
 // AGGREGATION MIDDLEWARE
 //
